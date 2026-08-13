@@ -23,12 +23,12 @@ from nemo_rl.algorithms.grpo import (
     MasterConfig,
     grpo_train,
     setup,
-    shutdown_environments,
 )
 from nemo_rl.algorithms.utils import get_tokenizer
 from nemo_rl.data.utils import setup_response_data
 from nemo_rl.data_plane.factory import maybe_configure_data_plane_env
 from nemo_rl.distributed.virtual_cluster import init_ray
+from nemo_rl.environments.utils import shutdown_environments
 from nemo_rl.models.generation import configure_generation_config
 from nemo_rl.telemetry.setup import init_telemetry_driver, shutdown_telemetry
 from nemo_rl.utils.config import (

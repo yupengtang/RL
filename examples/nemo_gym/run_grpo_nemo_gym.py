@@ -36,7 +36,6 @@ from nemo_rl.algorithms.grpo import (
     grpo_train,
     refit_policy_generation,
     setup,
-    shutdown_environments,
 )
 from nemo_rl.algorithms.utils import get_tokenizer
 from nemo_rl.data.utils import setup_response_data
@@ -46,6 +45,7 @@ from nemo_rl.environments.nemo_gym import (
     setup_nemo_gym_config,
     should_use_nemo_gym,
 )
+from nemo_rl.environments.utils import shutdown_environments
 from nemo_rl.experience.rollouts import run_nemo_gym_rollout_sync
 from nemo_rl.models.generation import configure_generation_config
 from nemo_rl.models.generation.vllm.config import materialize_vllm_video_config

@@ -60,7 +60,6 @@ from nemo_rl.algorithms.grpo import (
     grpo_train,
     refit_policy_generation,
     setup,
-    shutdown_environments,
     validate,
 )
 from nemo_rl.algorithms.grpo_sync import _train_fields_for_step, grpo_train_sync
@@ -78,6 +77,7 @@ from nemo_rl.environments.interfaces import (
     EnvironmentReturn,
 )
 from nemo_rl.environments.nemo_gym import should_use_nemo_gym
+from nemo_rl.environments.utils import shutdown_environments
 from nemo_rl.experience.interfaces import (
     FRONTIER_ORDINAL_KEY,
     NEMO_GYM_TASK_INDEX_KEY,
@@ -6017,3 +6017,33 @@ def test_train_fields_for_step(skip_prev_logprobs, expect_prev):
 )
 def test_needs_hf_refit_handshake(backend, nccl_reshard, colocated, expected):
     assert _needs_hf_refit_handshake(backend, nccl_reshard, colocated) is expected
+
+
+def test_grpo_train_shuts_down_environments_after_failure():
+    task_to_env = {"nemo_gym": MagicMock()}
+    val_task_to_env = task_to_env
+
+    with (
+        patch(
+            "nemo_rl.algorithms.grpo._grpo_train_impl",
+            side_effect=RuntimeError("rollout failed"),
+        ),
+        patch("nemo_rl.algorithms.grpo.shutdown_environments") as shutdown,
+        pytest.raises(RuntimeError, match="rollout failed"),
+    ):
+        grpo_train(
+            policy=MagicMock(),
+            policy_generation=MagicMock(),
+            wrapped_dataloader=MagicMock(),
+            val_dataloader=None,
+            tokenizer=MagicMock(),
+            loss_fn=MagicMock(),
+            task_to_env=task_to_env,
+            val_task_to_env=val_task_to_env,
+            logger=MagicMock(),
+            checkpointer=MagicMock(),
+            grpo_save_state=MagicMock(),
+            master_config=MagicMock(),
+        )
+
+    shutdown.assert_called_once_with(task_to_env, val_task_to_env)
