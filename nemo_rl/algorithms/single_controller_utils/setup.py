@@ -1301,9 +1301,7 @@ def setup_single_controller(
                 except BaseException:
                     nemo_gym_shards.shutdown()
                     raise
-                env_handles["nemo_gym"] = cast(
-                    EnvironmentInterface, nemo_gym_shards
-                )
+                env_handles["nemo_gym"] = cast(EnvironmentInterface, nemo_gym_shards)
                 setup_timing_metrics.nemo_gym_init_time_s = gym_time
     finally:
         if megatron_port_holder is not None:
