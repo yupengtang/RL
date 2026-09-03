@@ -72,6 +72,7 @@ class _AsyncLLMHTTPClient:
         self.model_config = engine_client.model_config
         self.renderer = engine_client.renderer
         self.input_processor = engine_client.input_processor
+        self.vllm_config = engine_client.vllm_config
 
     async def _run_on_engine_loop(self, operation: Callable[[], Awaitable[Any]]) -> Any:
         if asyncio.get_running_loop() is self._engine_loop:
@@ -84,6 +85,8 @@ class _AsyncLLMHTTPClient:
             future.cancel()
             raise
 
+    # These members only read engine status or immutable configuration. Running
+    # them on the engine loop added a cross-thread wait to each HTTP request.
     @property
     def errored(self) -> bool:
         return self._engine_client.errored
